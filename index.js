@@ -267,7 +267,7 @@ ui.select_node(0); // select the first node by default
       data,
       user,
       nonce: 0,
-      difficulty: 5 // initial difficulty for POW
+      difficulty: 5 // initial difficulty for POA
     };
 
     let hash;
@@ -353,7 +353,7 @@ class BlockChain {
   }
 
   addBlock(block) {
-    // Check if the block's hash matches the POW target
+    // Check if the block's hash matches the POA target
     const hash = crypto.createHash('sha256').update(JSON.stringify(block)).digest('hex');
     if (hash.substr(0, this.difficulty) !== TARGET_HASH) {
       throw new Error('Invalid block hash.');
@@ -437,7 +437,7 @@ const genesisBlock = {
   timestamp: Date.now(),
   miner: '',
   nonce: 0,
-  difficulty: 5 // initial difficulty for POW
+  difficulty: 5 // initial difficulty for POA
 };
 
 const blockchain = new BlockChain(genesisBlock);
