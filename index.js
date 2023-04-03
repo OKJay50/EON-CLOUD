@@ -104,11 +104,101 @@ class BlockChain {
   // ...
 }
 
+const readlineSync = require('readline-sync');
+
 class UserInterface {
   constructor() {
     this.selected_node = -1;
   }
 
+  async add_node_to_list() {
+    // get user input for private key and resilience
+    const user_input = readlineSync.question('Enter private key and resilience separated by comma: ');
+    const [private_key, resilience] = user_input.split(',');
+    const node = new Node(private_key, resilience);
+    network.push(node);
+    console.log(`Node ${node.private_key} has been added to the network!`);
+  }
+
+  async select_node(node_index) {
+    this.selected_node = node_index;
+    console.log(`Selected node: ${network[this.selected_node].private_key}`);
+  }
+
+  async request_data() {
+    const user_input = readlineSync.question('Enter data size and signature separated by comma: ');
+    const [data_size, signature] = user_input.split(',');
+    const data = await network[this.selected_node].request_data(Number(data_size), 'user1', signature);
+    console.log(`Requested data: ${data}`);
+  }
+
+  async store_data() {
+    const user_input = readlineSync.question('Enter data size and signature separated by comma: ');
+    const [data_size, signature] = user_input.split(',');
+    const result = await network[this.selected_node].store_data('some data', Number(data_size), 'user1', signature);
+    blockchain.addBlock(result.block);
+    const block = await blockchain.minePendingTransactions(network[this.selected_node].private_key);
+    console.log(`New block added to the chain: ${JSON.stringify(block)}`);
+  }
+
+  async view_balance() {
+    console.log(`Your token balance is: ${network[this.selected_node].token_balance}`);
+  }
+
+  async view_reputation_score() {
+    console.log(`Your reputation score is: ${network[this.selected_node].reputation_score}`);
+  }
+
+  async menu() {
+    console.log('\n---Blockchain Network---');
+    console.log('1. Add node');
+    console.log('2. Select node');
+    console.log('3. Request data');
+    console.log('4. Store data');
+    console.log('5. View balance');
+    console.log('6. View reputation score');
+    console.log('7. Quit');
+
+    const user_choice = readlineSync.question('Enter a number to select an action: ');
+    console.log(`You selected option ${user_choice}.`);
+
+    switch (user_choice) {
+      case '1':
+        await this.add_node_to_list();
+        break;
+      case '2':
+        const node_index = readlineSync.question('Enter node index: ');
+        await this.select_node(node_index);
+        break;
+      case '3':
+        await this.request_data();
+        break;
+      case '4':
+        await this.store_data();
+        break;
+      case '5':
+        await this.view_balance();
+        break;
+      case '6':
+        await this.view_reputation_score();
+        break;
+      case '7':
+        console.log('Goodbye!');
+        process.exit(0);
+        break;
+      default:
+        console.log('Invalid input, please try again.');
+        break;
+    }
+    await this.menu();
+  }
+}
+
+const ui = new UserInterface();
+ui.add_node_to_list();
+ui.select_node(0);
+ui.menu();
+}
   async add_node_to_list() { // add method to add nodes to the network
     const user_input = // get user input for private key and resilience
     const node = new Node(user_input.private_key, user_input.resilience);
