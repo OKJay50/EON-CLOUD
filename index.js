@@ -1,27 +1,26 @@
 const Avalanche = require('avalanche');
 const crypto = require('crypto');
-
 const network_id = 'local';
 const node_api = 'http://localhost:9650';
-
+const polygon_network_id = '0x89';
+const polygon_node_api = 'https://rpc-mainnet.maticvigil.com';
 const BLOCK_REWARD = 10;
 const TARGET_HASH = '0000'; // difficulty target for POW
-
 const ENCRYPTION_KEY = 'my-secret-key';
-const encrypted = crypto.createCipher('aes-256-cbc', ENCRYPTION KEY);
+const encrypted = crypto.createCipher('aes-256-cbc', ENCRYPTION_KEY);
 const decrypted = crypto.createDecipher('aes-256-cbc', ENCRYPTION_KEY);
 
-const avalanche = new Avalanche(network_id, node_api)
-const wallet = avalanche.createWallet()
-const address = wallet.getAddress()
-const private_key = wallet.getPrivateKey()
-const public_key = wallet.getPublicKey()
+const avalanche = new Avalanche(network_id, node_api);
+const polygon = new Avalanche(polygon_network_id, polygon_node_api);
+const wallet = avalanche.createWallet();
+const address = wallet.getAddress();
+const private_key = wallet.getPrivateKey();
+const public_key = wallet.getPublicKey();
 
 const readlineSync = require('readline-sync');
 
 class Node {
   // constructor, encrypt_data, decrypt_data, etc.
-
   async mine_pending_transactions() {
     const block = {
       transactions: this.pending_transactions,
@@ -34,6 +33,7 @@ class Node {
     // select the validator with the highest active stake
     const validators = network.filter(node => node.token_balance > 0 && node.reputation_score >= 0.5);
     const validator = validators.sort((a, b) => b.token_balance - a.token_balance)[0];
+
     if (!validator || validator !== this) {
       console.log(`Error: ${this.private_key.getAddressString()} is not a valid validator.`);
       return false;
@@ -46,48 +46,47 @@ class Node {
     // update tokens and reputation score based on successful block addition
     const reward_token = block.transactions.length * 2;
     const reward_reputation = block.transactions.length * 0.1;
-    this
 
-  encrypt_data(data) {
-    const cipher =
-      crypto.createCipher('aes-256-cbc',
-        ENCRYPTION_KEY);
-    let encrypted = cipher.update(data,
-      'utf8', 'hex');
+    this encrypt_data(data) {
+      const cipher = crypto.createCipher('aes-256-cbc', ENCRYPTION_KEY);
+      let encrypted = cipher.update(data, 'utf8', 'hex');
+    }
+    encrypted = cipher.final('hex');
+    return encrypted;
   }
-  encrypted = cipher.final('hex'); 
-return encrypted;
-}
-  decrypt_data(data) {       
-    const decipher =       
-      crypto.createDecipher('aes-256-cbc', ENCRYPTION_KEY);
-    let decrypted =        decipher.update(data, 'hex', 'utf8encrypted = cipher.final('hex');
-return encrypted;
 
-  // ...
+  decrypt_data(data) {
+    const decipher = crypto.createDecipher('aes-256-cbc', ENCRYPTION_KEY);
+    let decrypted = decipher.update(data, 'hex', 'utf8encrypted = cipher.final('hex');
+    return encrypted;
+    // ...
+  }
 
-  async update_reputation_score(score) { // add method to update reputation score
-  this.reputation_score = score;
-}
+  async update_reputation_score(score) {
+    // add method to update reputation score
+    this.reputation_score = score;
+  }
 
-  async get_reputation_score() { // add method get reputation score
-  return this.reputation_score;
-}
+  async get_reputation_score() {
+    // add method get reputation score
+    return this.reputation_score;
+  }
 
-  async process_transaction(transaction) { // add reward system and update reputation score
-  this.token_balance += transaction.fee;
-  const reward = this.reputation_score * 0.1;
-  this.token_balance += reward;
-  const txid = await this.xchain.issueTx(transaction);
-  this.update_reputation_score(this.reputation_score * 1.01);
-}
+  async process_transaction(transaction) {
+    // add reward system and update reputation score
+    this.token_balance += transaction.fee;
+    const reward = this.reputation_score * 0.1;
+    this.token_balance += reward;
+    const txid = await this.xchain.issueTx(transaction);
+    this.update_reputation_score(this.reputation_score * 1.01);
+  }
 }
 
 class BlockChain {
   constructor(genesis) {
     this.chain = [genesis];
     this.pending_transactions = [];
-    this.difficulty = 5;
+    this.difficulty =5;
   }
 
   // ...
