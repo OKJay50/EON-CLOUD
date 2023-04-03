@@ -17,19 +17,37 @@ const address = wallet.getAddress()
 const private_key = wallet.getPrivateKey()
 const public_key = wallet.getPublicKey()
 
-const block = {
-  index: 0, // block index, unique for each block, starts from 0, increased by 1 for each genesisBlock
+const readlineSync = require('readline-sync');
+
 class Node {
-  constructor(private_key, resilience) {
-    this.blockchain = new Blockchain();
-    const ava = new Avalanche(node_api, '', '', network_id, 'X');
-    this.xchain = ava.XChain();
-    this.private_key = private_key;
-    this.resilience = resilience;
-    this.token_balance = 0;
-    this.white_list = [];
-    this.reputation_score = 0; // add reputation score
-  }
+  // constructor, encrypt_data, decrypt_data, etc.
+
+  async mine_pending_transactions() {
+    const block = {
+      transactions: this.pending_transactions,
+      timestamp: Date.now(),
+      miner: this.private_key.getAddressString(),
+      nonce: 0,
+      difficulty: blockchain.difficulty
+    };
+
+    // select the validator with the highest active stake
+    const validators = network.filter(node => node.token_balance > 0 && node.reputation_score >= 0.5);
+    const validator = validators.sort((a, b) => b.token_balance - a.token_balance)[0];
+    if (!validator || validator !== this) {
+      console.log(`Error: ${this.private_key.getAddressString()} is not a valid validator.`);
+      return false;
+    }
+
+    // add the block to the chain
+    blockchain.addBlock(block);
+    console.log(`Block mined by ${this.private_key.getAddressString()}: ${JSON.stringify(block)}`);
+
+    // update tokens and reputation score based on successful block addition
+    const reward_token = block.transactions.length * 2;
+    const reward_reputation = block.transactions.length * 0.1;
+    this
+
   encrypt_data(data) {
     const cipher =
       crypto.createCipher('aes-256-cbc',
