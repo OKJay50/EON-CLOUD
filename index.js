@@ -1,5 +1,8 @@
 const Avalanche = require('avalanche');
 const crypto = require('crypto');
+const { Principal } = require('@dfinity/principal');
+const { HttpAgent } = require('@dfinity/agent');
+const { Identity } = require('@dfinity/identity');
 const network_id = 'local';
 const node_api = 'http://localhost:9650';
 const polygon_network_id = '0x89';
@@ -18,30 +21,57 @@ const private_key = wallet.getPrivateKey();
 const public_key = wallet.getPublicKey();
 
 const readlineSync = require('readline-sync');
+const agent = new HttpAgent({host: "http://localhost:8000"});
 
 class Node {
-  // constructor, encrypt_data, decrypt_data, etc.
+  constructor(private_key, resilience) {
+    this.private_key = private_key;
+    this.public_key = crypto.createPublicKey(private_key);
+    this.address = Principal.selfAuthenticating(new Uint8Array(this.public_key.export({ type: 'spki', format: 'der' })));
+    this.token_balance = 0;
+    this.reputation_score = 0.5;
+    this.resilience = resilience;
+  }
+
+  async send_icp_message(message, receiver) {
+    const identity = Identity.fromPrivateKey(this.private_key);
+    const receiver_principal = Principal.fromText(receiver);
+    const response = await agent.fetchRootKey();
+    const root_key = response.rootKey;
+    const actor = Actor.createActor(icp.canisterId, { agent, rootKey: root_key, identity });
+    const result = await actor.send_message(message, this.address, receiver_principal);
+    return result;
+  }
+
+  async receive_icp_message(message_id) {
+    const identity = Identity.fromPrivateKey(this.private_key);
+    const response = await agent.fetchRootKey();
+    const root_key = response.rootKey;
+    const actor = Actor.createActor(icp.canisterId, { agent, rootKey: root_key, identity });
+    const result = await actor.receive_message(message_id, this.address);
+    return result;
+  }
+
   async mine_pending_transactions() {
     const block = {
       transactions: this.pending_transactions,
       timestamp: Date.now(),
-      miner: this.private_key.getAddressString(),
+      miner: this.address.toString(),
       nonce: 0,
       difficulty: blockchain.difficulty
     };
-
     // select the validator with the highest active stake
     const validators = network.filter(node => node.token_balance > 0 && node.reputation_score >= 0.5);
     const validator = validators.sort((a, b) => b.token_balance - a.token_balance)[0];
-
     if (!validator || validator !== this) {
-      console.log(`Error: ${this.private_key.getAddressString()} is not a valid validator.`);
+      console.log(`Error: ${this.address.toString()} is not a valid validator.`);
       return false;
     }
-
     // add the block to the chain
     blockchain.addBlock(block);
-    console.log(`Block mined by ${this.private_key.getAddressString()}: ${JSON.stringify(block)}`);
+    console.log(`Block mined by ${this.address.toString()}: ${JSON.stringify(block)}`);
+    // update tokens and reputation score based on successful block addition
+    const reward_token = block.transactions
 
     // update tokens and reputation score based on successful block addition
     const reward_token = block.transactions.length * 2;
@@ -345,7 +375,7 @@ class BlockChain {
   constructor(genesis) {
     this.chain = [genesis];
     this.pending_transactions = [];
-    this.difficulty = 5; // initial difficulty for POW
+    this.difficulty = 5; // initial difficulty for POA
   }
 
   getLastBlock() {
