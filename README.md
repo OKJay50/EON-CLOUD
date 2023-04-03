@@ -1,5 +1,5 @@
 # EON-CLOUD
-- Integrated with the Avalanche (AVAX), Polygon, & Internet Computer Protocol (ICP)
+- Integrated with Avalanche (AVAX), Polygon, & Internet Computer Protocol (ICP)
 - Node Runners offer up Storage on their Network in exchange for Tokens
 - EON-Ticket (EONT) Asset is currently in Developement on the Fuji-TestNet 
 - (POA) Proof-Of-Authority Consensus Alogrithm ( POW + POS ) 
