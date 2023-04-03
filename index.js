@@ -24,13 +24,14 @@ const readlineSync = require('readline-sync');
 const agent = new HttpAgent({host: "http://localhost:8000"});
 
 class Node {
-  constructor(private_key, resilience) {
+  constructor(private_key, resilience, storage) {
     this.private_key = private_key;
     this.public_key = crypto.createPublicKey(private_key);
     this.address = Principal.selfAuthenticating(new Uint8Array(this.public_key.export({ type: 'spki', format: 'der' })));
     this.token_balance = 0;
     this.reputation_score = 0.5;
     this.resilience = resilience;
+    this.storage = storage;
   }
 
   async send_icp_message(message, receiver) {
@@ -60,12 +61,17 @@ class Node {
       nonce: 0,
       difficulty: blockchain.difficulty
     };
-    // select the validator with the highest active stake
-    const validators = network.filter(node => node.token_balance > 0 && node.reputation_score >= 0.5);
-    const validator = validators.sort((a, b) => b.token_balance - a.token_balance)[0];
+    // select the validator with the highest active stake or the storage node with the most available storage capacity
+    const validators = network.filter(node => node.token_balance > 0 && node.reputation_score >= 0.5 && !node.storage);
+    const storage_nodes = network.filter(node => node.storage);
+    let validator;
+    if (validators.length > 0) {
+      validator = validators.sort((a, b) => b.token_balance - a.token_balance)[0];
+    } else {
+      validator = storage_nodes.sort((a, b) => a.storage - b.storage)[0];
+    }
     if (!validator || validator !== this) {
-      console.log(`Error: ${this.address.toString()} is not a valid validator.`);
-      return false;
+      console.log(`Error: ${this.address.toString
     }
     // add the block to the chain
     blockchain.addBlock(block);
