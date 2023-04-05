@@ -1,3 +1,6 @@
+const Avalanche = require ('avalanche');
+const avalanche = new Avalanche(network_id, node_api);
+
 const crypto = require('crypto');
 const { Principal } = require('@dfinity/principal');
 const { Identity } = require('@dfinity/identity');
