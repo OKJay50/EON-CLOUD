@@ -11,4 +11,4 @@
 
 
 
-<iframe width="560" height="315" src=iframe src="https://giphy.com/embed/tRSa9Sx88CyMz2ua1U" title="Animated GIF" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://giphy.com/embed/tRSa9Sx88CyMz2ua1U" title="Animated GIF" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
