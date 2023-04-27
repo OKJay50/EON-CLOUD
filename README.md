@@ -9,6 +9,6 @@
 - After there are 1,000 Active Nodes Running throughout the Network; 500 Nodes will Fork and Branch off creating a new Network of its own
 - !! Open-Source Please Contribute If You Have An Amazing Idea !!
 
+## Graph SubGraph Being Deployed 
 
 
-<iframe width="560" height="315" src="https://giphy.com/embed/tRSa9Sx88CyMz2ua1U" title="Animated GIF" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
